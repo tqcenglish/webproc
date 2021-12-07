@@ -22,10 +22,6 @@ import (
 	"github.com/jpillora/ipfilter"
 	"github.com/jpillora/requestlog"
 	"github.com/jpillora/velox"
-	"github.com/rakyll/statik/fs"
-
-	//embed static assets
-	_ "github.com/jpillora/webproc/agent/statik"
 )
 
 type agent struct {
@@ -117,17 +113,10 @@ func Run(version string, c Config) error {
 			`{{ if .IP }} ({{ .IP }}){{end}}` + "\n",
 	})
 	a.root = h
+
 	//filesystem
-	if info, err := os.Stat("agent/static/"); err == nil && info.IsDir() {
-		a.log.Printf("agent serving local static files")
-		a.fs = http.FileServer(http.Dir("agent/static/"))
-	} else {
-		statikFS, err := fs.New()
-		if err != nil {
-			return fmt.Errorf("failed to load static assets: %s", err)
-		}
-		a.fs = http.FileServer(statikFS)
-	}
+	a.fs = http.FileServer(http.FS(StaticFiles))
+
 	//grab listener
 	l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", c.Host, c.Port))
 	if err != nil {
