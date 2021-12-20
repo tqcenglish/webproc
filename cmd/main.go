@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -8,9 +9,17 @@ import (
 	"github.com/jpillora/webproc/agent"
 )
 
-var version = "0.0.0-src"
+var version = ""
+
+// AppVer 版本
+var (
+	gitCommitCode string
+	buildDateTime string
+	goVersion     string
+)
 
 func main() {
+	version = fmt.Sprintf("%s-%s-%s", gitCommitCode, buildDateTime, goVersion)
 	//prepare config!
 	c := agent.Config{}
 	//parse cli
